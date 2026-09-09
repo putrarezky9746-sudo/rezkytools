@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyberpunk Media Downloader</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #0a0e1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 850px;
+            width: 100%;
+            background: linear-gradient(145deg, #111827, #0d1528);
+            border: 2px solid #00d4ff;
+            border-radius: 30px;
+            padding: 35px;
+            box-shadow: 0 0 60px rgba(0, 212, 255, 0.15), inset 0 0 60px rgba(0, 212, 255, 0.03);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 40%, rgba(255, 0, 64, 0.05), transparent 60%);
+            pointer-events: none;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #00d4ff, #0088cc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
+            letter-spacing: 2px;
+        }
+
+        .header h1 span {
+            background: linear-gradient(135deg, #ff0040, #cc0033);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header .subtitle {
+            color: #667799;
+            font-size: 0.9rem;
+            letter-spacing: 4px;
+            margin-top: 5px;
+        }
+
+        .header .subtitle i {
+            color: #ff0040;
+            margin: 0 5px;
+        }
+
+        .platform-badges {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0 25px;
+        }
+
+        .platform-badges .badge {
+            padding: 8px 18px;
+            border-radius: 50px;
+            background: rgba(0, 212, 255, 0.08);
+            border: 1px solid rgba(0, 212, 255, 0.15);
+            color: #8899bb;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: 0.3s;
+            cursor: default;
+        }
+
+        .platform-badges .badge i {
+            margin-right: 8px;
+            color: #00d4ff;
+        }
+
+        .platform-badges .badge.active {
+            background: rgba(255, 0, 64, 0.15);
+            border-color: #ff0040;
+            color: #ff6b8a;
+        }
+
+        .platform-badges .badge.active i {
+            color: #ff0040;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 16px 24px;
+            border-radius: 60px;
+            border: 2px solid #1a2a4a;
+            background: #0a0f1f;
+            color: #ddeeff;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.3s;
+            min-width: 200px;
+        }
+
+        .input-group input:focus {
+            border-color: #00d4ff;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.15);
+        }
+
+        .input-group input::placeholder {
+            color: #445566;
+        }
+
+        .input-group button {
+            padding: 16px 35px;
+            border-radius: 60px;
+            border: none;
+            background: linear-gradient(135deg, #00d4ff, #0077be);
+            color: #fff;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-group button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .input-group button:active {
+            transform: scale(0.97);
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .quick-actions button {
+            padding: 6px 14px;
+            border-radius: 30px;
+            border: 1px solid #1a2a4a;
+            background: transparent;
+            color: #667799;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .quick-actions button:hover {
+            border-color: #00d4ff;
+            color: #00d4ff;
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        .result-area {
+            margin-top: 25px;
+            background: #0a0f1f;
+            border-radius: 20px;
+            border: 1px solid #1a2a4a;
+            padding: 25px;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .result-area.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-area .preview {
+            margin-bottom: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .result-area .preview iframe {
+            width: 100%;
+            height: 250px;
+            border: none;
+        }
+
+        .result-area .preview img {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+        }
+
+        .result-area .info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            background: rgba(0, 212, 255, 0.05);
+            border-radius: 12px;
+            border-left: 3px solid #00d4ff;
+        }
+
+        .result-area .info .title {
+            color: #ddeeff;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .result-area .info .platform-tag {
+            color: #667799;
+            font-size: 0.8rem;
+        }
+
+        .result-area .info .platform-tag i {
+            color: #ff0040;
+            margin-right: 5px;
+        }
+
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+
+        .download-grid a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 20px;
+            border-radius: 60px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: 0.3s;
+            text-align: center;
+        }
+
+        .download-grid a.dl-video {
+            background: linear-gradient(135deg, #ff0040, #cc0033);
+            color: #fff;
+            border: 2px solid transparent;
+        }
+
+        .download-grid a.dl-video:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 0, 64, 0.3);
+        }
+
+        .download-grid a.dl-audio {
+            background: linear-gradient(135deg, #00d4ff, #0077be);
+            color: #fff;
+            border: 2px solid transparent;
+        }
+
+        .download-grid a.dl-audio:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .download-grid a.dl-external {
+            background: transparent;
+            color: #8899bb;
+            border: 2px solid #1a2a4a;
+        }
+
+        .download-grid a.dl-external:hover {
+            border-color: #00d4ff;
+            color: #00d4ff;
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        .status-bar {
+            margin-top: 15px;
+            padding: 10px 18px;
+            border-radius: 12px;
+            background: rgba(0, 212, 255, 0.05);
+            color: #667799;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-bar .spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .status-bar .success {
+            color: #00d4ff;
+        }
+
+        .status-bar .error {
+            color: #ff0040;
+        }
+
+        .footer {
+            margin-top: 25px;
+            text-align: center;
+            color: #334455;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            border-top: 1px solid #1a2a4a;
+            padding-top: 20px;
+        }
+
+        .footer i {
+            color: #ff0040;
+            margin: 0 5px;
+        }
+
+        .footer a {
+            color: #00d4ff;
+            text-decoration: none;
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 20px; }
+            .header h1 { font-size: 2rem; }
+            .input-group input { min-width: 150px; }
+            .download-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>⚡ DOWN<span>LOAD</span>⚡</h1>
+            <div class="subtitle">
+                <i class="fas fa-skull"></i> CYBERPUNK <i class="fas fa-bolt"></i> MEDIA DOWNLOADER
+            </div>
+        </div>
+
+        <!-- Platform Badges -->
+        <div class="platform-badges">
+            <span class="badge active"><i class="fab fa-youtube"></i> YouTube</span>
+            <span class="badge"><i class="fab fa-tiktok"></i> TikTok</span>
+            <span class="badge"><i class="fab fa-spotify"></i> Spotify</span>
+            <span class="badge"><i class="fab fa-instagram"></i> Instagram</span>
+            <span class="badge"><i class="fab fa-facebook"></i> Facebook</span>
+            <span class="badge"><i class="fab fa-twitter"></i> Twitter/X</span>
+        </div>
+
+        <!-- Input -->
+        <div class="input-group">
+            <input type="text" id="urlInput" placeholder="Tempelkan tautan media di sini..." value="https://www.youtube.com/watch?v=dQw4w9WgXcQ">
+            <button id="processBtn"><i class="fas fa-robot"></i> Proses</button>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <button onclick="setExample('youtube')"><i class="fab fa-youtube"></i> YouTube</button>
+            <button onclick="setExample('tiktok')"><i class="fab fa-tiktok"></i> TikTok</button>
+            <button onclick="setExample('spotify')"><i class="fab fa-spotify"></i> Spotify</button>
+            <button onclick="setExample('instagram')"><i class="fab fa-instagram"></i> Instagram</button>
+            <button onclick="clearInput()"><i class="fas fa-times"></i> Kosongkan</button>
+        </div>
+
+        <!-- Result Area -->
+        <div id="resultArea" class="result-area">
+            <div id="previewContainer" class="preview"></div>
+            <div id="infoContainer" class="info">
+                <span class="title" id="mediaTitle">Judul Media</span>
+                <span class="platform-tag" id="platformTag"><i class="fas fa-tag"></i> Platform</span>
+            </div>
+            <div id="downloadContainer" class="download-grid"></div>
+            <div id="statusBar" class="status-bar">
+                <i class="fas fa-circle" style="color:#00d4ff; font-size:8px;"></i>
+                <span id="statusText">Siap untuk diproses</span>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <i class="fas fa-code"></i> Dibuat dengan <i class="fas fa-heart"></i> · Menggunakan berbagai API publik
+            <br>
+            <i class="fas fa-info-circle"></i> Hasil tergantung ketersediaan API
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // DATA API ENDPOINTS (PUBLIC / THIRD PARTY)
+        // ============================================
+        const APIS = {
+            youtube: {
+                name: 'YouTube',
+                icon: 'fab fa-youtube',
+                color: '#ff0040',
+                // Menggunakan API dari beberapa sumber
+                endpoints: [
+                    {
+                        url: (id) => `https://api.vevioz.com/api/button/mp3/${id}`,
+                        type: 'direct'
+                    },
+                    {
+                        url: (id) => `https://www.y2mate.com/youtube/${id}`,
+                        type: 'redirect'
+                    }
+                ],
+                extractId: (url) => {
+                    const patterns = [
+                        /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/,
+                        /youtube\.com\/embed\/([^&\n?#]+)/
+                    ];
+                    for (let p of patterns) {
+                        const match = url.match(p);
+                        if (match) return match[1];
+                    }
+                    return null;
+                },
+                embed: (id) => `https://www.youtube.com/embed/${id}`
+            },
+            tiktok: {
+                name: 'TikTok',
+                icon: 'fab fa-tiktok',
+                color: '#00d4ff',
+                endpoints: [
+                    {
+                        url: (url) => `https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`,
+                        type: 'api'
+                    },
+                    {
+                        url: (url) => `https://snaptik.app/en?url=${encodeURIComponent(url)}`,
+                        type: 'redirect'
+                    }
+                ],
+                extractId: (url) => url,
+                embed: (url) => null
+            },
+            spotify: {
+                name: 'Spotify',
+                icon: 'fab fa-spotify',
+                color: '#1DB954',
+                endpoints: [
+                    {
+                        url: (id) => `https://api.spotifydown.com/track/${id}`,
+                        type: 'api'
+                    },
+                    {
+                        url: (id) => `https://spotifydown.com/track/${id}`,
+                        type: 'redirect'
+                    }
+                ],
+                extractId: (url) => {
+                    const match = url.match(/spotify\.com\/track\/([^&\n?#]+)/);
+                    return match ? match[1] : null;
+                },
+                embed: (id) => `https://open.spotify.com/embed/track/${id}`
+            },
+            instagram: {
+                name: 'Instagram',
+                icon: 'fab fa-instagram',
+                color: '#E4405F',
+                endpoints: [
+                    {
+                        url: (url) => `https://www.instagram.com/oembed?url=${encodeURIComponent(url)}`,
+                        type: 'oembed'
+                    },
+                    {
+                        url: (url) => `https://snapinsta.app/instagram-downloader?url=${encodeURIComponent(url)}`,
+                        type: 'redirect'
+                    }
+                ],
+                extractId: (url) => url,
+                embed: (url) => null
+            },
+            facebook: {
+                name: 'Facebook',
+                icon: 'fab fa-facebook',
+                color: '#1877F2',
+                endpoints: [
+                    {
+                        url: (url) => `https://www.facebook.com/oembed?url=${encodeURIComponent(url)}`,
+                        type: 'oembed'
+                    },
+                    {
+                        url: (url) => `https://snapinsta.app/facebook-downloader?url=${encodeURIComponent(url)}`,
+                        type: 'redirect'
+                    }
+                ],
+                extractId: (url) => url,
+                embed: (url) => null
+            },
+            twitter: {
+                name: 'Twitter/X',
+                icon: 'fab fa-twitter',
+                color: '#1DA1F2',
+                endpoints: [
+                    {
+                        url: (url) => `https://publish.twitter.com/oembed?url=${encodeURIComponent(url)}`,
+                        type: 'oembed'
+                    },
+                    {
+                        url: (url) => `https://twdown.net/download.php?url=${encodeURIComponent(url)}`,
+                        type: 'redirect'
+                    }
+                ],
+                extractId: (url) => url,
+                embed: (url) => null
+            }
+        };
+
+        // ============================================
+        // DOM ELEMENTS
+        // ============================================
+        const urlInput = document.getElementById('urlInput');
+        const processBtn = document.getElementById('processBtn');
+        const resultArea = document.getElementById('resultArea');
+        const previewContainer = document.getElementById('previewContainer');
+        const infoContainer = document.getElementById('infoContainer');
+        const mediaTitle = document.getElementById('mediaTitle');
+        const platformTag = document.getElementById('platformTag');
+        const downloadContainer = document.getElementById('downloadContainer');
+        const statusText = document.getElementById('statusText');
+        const statusBar = document.getElementById('statusBar');
+
+        // ============================================
+        // FUNCTIONS
+        // ============================================
+        function detectPlatform(url) {
+            url = url.toLowerCase();
+            if (url.includes('youtube.com') || url.includes('youtu.be')) return 'youtube';
+            if (url.includes('tiktok.com')) return 'tiktok';
+            if (url.includes('spotify.com')) return 'spotify';
+            if (url.includes('instagram.com')) return 'instagram';
+            if (url.includes('facebook.com')) return 'facebook';
+            if (url.includes('twitter.com') || url.includes('x.com')) return 'twitter';
+            return null;
+        }
+
+        function setStatus(text, type = 'info') {
+            const icon = statusBar.querySelector('i');
+            const span = statusText;
+            
+            if (type === 'loading') {
+                icon.className = 'fas fa-spinner spinner';
+                icon.style.color = '#00d4ff';
+            } else if (type === 'success') {
+                icon.className = 'fas fa-check-circle';
+                icon.style.color = '#00d4ff';
+            } else if (type === 'error') {
+                icon.className = 'fas fa-exclamation-circle';
+                icon.style.color = '#ff0040';
+            } else {
+                icon.className = 'fas fa-circle';
+                icon.style.color = '#667799';
+            }
+            span.textContent = text;
+        }
+
+        function showError(message) {
+            setStatus('❌ ' + message, 'error');
+            resultArea.classList.add('show');
+            downloadContainer.innerHTML = '';
+            previewContainer.innerHTML = '';
+            mediaTitle.textContent = 'Error';
+            platformTag.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Gagal';
+        }
+
+        function updateBadges(platform) {
+            document.querySelectorAll('.platform-badges .badge').forEach(b => b.classList.remove('active'));
+            const badges = document.querySelectorAll('.platform-badges .badge');
+            const platformNames = ['youtube', 'tiktok', 'spotify', 'instagram', 'facebook', 'twitter'];
+            const index = platformNames.indexOf(platform);
+            if (index !== -1 && badges[index]) {
+                badges[index].classList.add('active');
+            }
+        }
+
+        function setExample(platform) {
+            const examples = {
+                youtube: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+                tiktok: 'https://www.tiktok.com/@tiktok/video/7123456789012345678',
+                spotify: 'https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT',
+                instagram: 'https://www.instagram.com/p/CxYz123AbCd/'
+            };
+            urlInput.value = examples[platform] || '';
+            processLink();
+        }
+
+        function clearInput() {
+            urlInput.value = '';
+            resultArea.classList.remove('show');
+            setStatus('Siap untuk diproses', 'info');
+        }
+
+        // ============================================
+        // MAIN PROCESS
+        // ============================================
+        async function processLink() {
+            const url = urlInput.value.trim();
+            
+            if (!url) {
+                showError('Masukkan tautan terlebih dahulu!');
+                return;
+            }
+
+            // Reset
+            resultArea.classList.remove('show');
+            downloadContainer.innerHTML = '';
+            previewContainer.innerHTML = '';
+            setStatus('🔄 Memproses...', 'loading');
+
+            const platform = detectPlatform(url);
+            if (!platform) {
+                showError('Platform tidak dikenali. Coba tautan dari YouTube, TikTok, Spotify, Instagram, Facebook, atau Twitter.');
+                return;
+            }
+
+            updateBadges(platform);
+            const api = APIS[platform];
+            platformTag.innerHTML = `<i class="${api.icon}"></i> ${api.name}`;
+
+            try {
+                // Ekstrak ID
+                let id = api.extractId(url);
+                if (!id) id = url;
+
+                // Tampilkan embed jika ada
+                if (api.embed && api.embed(id)) {
+                    previewContainer.innerHTML = `
+                        <iframe src="${api.embed(id)}" 
+                                allowfullscreen 
+                                loading="lazy"
+                                style="width:100%; height:250px; border:none; border-radius:12px;">
+                        </iframe>
+                    `;
+                } else {
+                    previewContainer.innerHTML = `
+                        <div style="padding:40px; text-align:center; color:#667799; background:rgba(0,0,0,0.3); border-radius:12px;">
+                            <i class="${api.icon}" style="font-size:3rem; color:#00d4ff;"></i>
+                            <p style="margin-top:10px;">🔗 ${api.name} — Preview tidak tersedia</p>
+                        </div>
+                    `;
+                }
+
+                // Buat tombol download (berbagai sumber)
+                let downloadButtons = '';
+                
+                // Coba API langsung (jika ada)
+                if (api.endpoints && api.endpoints.length > 0) {
+                    for (let endpoint of api.endpoints) {
+                        const endpointUrl = typeof endpoint.url === 'function' ? endpoint.url(id) : endpoint.url;
+                        
+                        if (endpoint.type === 'direct' || endpoint.type === 'api') {
+                            // Coba fetch API
+                            try {
+                                const response = await fetch(endpointUrl);
+                                if (response.ok) {
+                                    const data = await response.json();
+                                    // Coba ekstrak link download
+                                    let downloadUrl = null;
+                                    if (data && data.download) downloadUrl = data.download;
+                                    else if (data && data.link) downloadUrl = data.link;
+                                    else if (data && data.url) downloadUrl = data.url;
+                                    else if (data && data.video) downloadUrl = data.video;
+                                    else if (data && data.audio) {
+                                        // Ada audio
+                                        downloadButtons += `
+                                            <a href="${data.audio}" target="_blank" class="dl-audio">
+                                                <i class="fas fa-music"></i> Download Audio
+                                            </a>
+                                        `;
+                                    }
+                                    
+                                    if (downloadUrl) {
+                                        downloadButtons += `
+                                            <a href="${downloadUrl}" target="_blank" class="dl-video">
+                                                <i class="fas fa-download"></i> Download Media
+                                            </a>
+                                        `;
+                                    }
+                                }
+                            } catch (e) {
+                                // Gagal fetch, lanjut ke endpoint berikutnya
+                            }
+                        } else if (endpoint.type === 'redirect' || endpoint.type === 'oembed') {
+                            // Tambahkan sebagai link eksternal
+                            const label = endpoint.type === 'oembed' ? 'Lihat' : 'Buka Downloader';
+                            downloadButtons += `
+                                <a href="${endpointUrl}" target="_blank" class="dl-external">
+                                    <i class="fas fa-external-link-alt"></i> ${label}
+                                </a>
+                            `;
+                        }
+                    }
+                }
+
+                // Fallback: jika tidak ada tombol, tambahkan link universal
+                if (!downloadButtons) {
+                    const fallbackUrls = {
+                        youtube: `https://www.y2mate.com/search?q=${encodeURIComponent(url)}`,
+                        tiktok: `https://snaptik.app/en?url=${encodeURIComponent(url)}`,
+                        spotify: `https://spotifydown.com/?url=${encodeURIComponent(url)}`,
+                        instagram: `https://snapinsta.app/?url=${encodeURIComponent(url)}`,
+                        facebook: `https://snapinsta.app/facebook-downloader?url=${encodeURIComponent(url)}`,
+                        twitter: `https://twdown.net/download.php?url=${encodeURIComponent(url)}`
+                    };
+                    
+                    if (fallbackUrls[platform]) {
+                        downloadButtons = `
+                            <a href="${fallbackUrls[platform]}" target="_blank" class="dl-external">
+                                <i class="fas fa-external-link-alt"></i> Buka di ${api.name} Downloader
+                            </a>
+                        `;
+                    } else {
+                        downloadButtons = `
+                            <a href="#" class="dl-external" style="cursor:default; opacity:0.5;">
+                                <i class="fas fa-ban"></i> Tidak ada link download tersedia
+                            </a>
+                        `;
+                    }
+                }
+
+                // Tambahkan tombol "Coba Lagi" dengan API alternatif
+                downloadButtons += `
+                    <a href="#" onclick="processLink(); return false;" class="dl-external" style="border-color:#00d4ff; color:#00d4ff;">
+                        <i class="fas fa-sync-alt"></i> Coba Lagi
+                    </a>
+                `;
+
+                downloadContainer.innerHTML = downloadButtons;
+                mediaTitle.textContent = `🎯 ${api.name} — ${url.substring(0, 50)}${url.length > 50 ? '...' : ''}`;
+                
+                resultArea.classList.add('show');
+                setStatus('✅ Selesai! Klik tombol download di atas.', 'success');
+
+            } catch (error) {
+                showError('Terjadi kesalahan: ' + error.message);
+                console.error(error);
+            }
+        }
+
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+        processBtn.addEventListener('click', processLink);
+        
+        urlInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') processLink();
+        });
+
+        // Auto process on load
+        window.addEventListener('load', () => {
+            setTimeout(processLink, 600);
+        });
+
+        // ============================================
+        // EXTRA: Deteksi platform otomatis saat typing
+        // ============================================
+        let typingTimer;
+        urlInput.addEventListener('input', () => {
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(() => {
+                const url = urlInput.value.trim();
+                if (url) {
+                    const platform = detectPlatform(url);
+                    if (platform) {
+                        updateBadges(platform);
+                        const api = APIS[platform];
+                        if (api) {
+                            platformTag.innerHTML = `<i class="${api.icon}"></i> ${api.name}`;
+                            setStatus(`🔍 Terdeteksi: ${api.name}`, 'info');
+                        }
+                    } else {
+                        platformTag.innerHTML = '<i class="fas fa-question-circle"></i> Unknown';
+                    }
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html>
