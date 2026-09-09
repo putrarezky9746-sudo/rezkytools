@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CYBERPUNK DOWNLOADER</title>
+  <!-- Font & Ikon -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* RESET & GLOBAL */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Orbitron', 'Segoe UI', system-ui, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at 20% 30%, #0b0d1a, #030408);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+
+    /* KARTU UTAMA — CYBERPUNK DARK BLUE/RED */
+    .cyber-card {
+      max-width: 800px;
+      width: 100%;
+      background: rgba(8, 12, 30, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 2px solid #00e5ff;
+      box-shadow: 0 0 30px #00e5ff55, 0 0 60px #ff004080, inset 0 0 20px #00e5ff33;
+      border-radius: 3rem 1rem 3rem 1rem;
+      padding: 2.5rem 2rem;
+      transition: 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* dekorasi glitch */
+    .cyber-card::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(45deg, #ff0040, #00e5ff, #ff0040, #00e5ff);
+      background-size: 400% 400%;
+      z-index: -1;
+      border-radius: 3rem 1rem 3rem 1rem;
+      filter: blur(6px);
+      opacity: 0.5;
+      animation: neonPulse 4s ease-in-out infinite alternate;
+    }
+
+    @keyframes neonPulse {
+      0% { opacity: 0.3; background-position: 0% 50%; }
+      100% { opacity: 0.8; background-position: 100% 50%; }
+    }
+
+    /* JUDUL */
+    .glitch-title {
+      font-size: 2.8rem;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      color: #00e5ff;
+      text-shadow: 0 0 10px #00e5ff, 0 0 30px #ff0040, 0 0 60px #ff004066;
+      margin-bottom: 0.5rem;
+      word-break: break-word;
+    }
+
+    .glitch-title small {
+      display: block;
+      font-size: 0.9rem;
+      letter-spacing: 8px;
+      color: #ff6b8a;
+      text-shadow: 0 0 8px #ff0040;
+      margin-top: -8px;
+    }
+
+    .sub-cyber {
+      text-align: center;
+      color: #a0c4ff;
+      border-bottom: 1px dashed #ff004066;
+      padding-bottom: 1rem;
+      margin-bottom: 2rem;
+      font-size: 0.9rem;
+      letter-spacing: 2px;
+      display: flex;
+      justify-content: center;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+    }
+
+    .sub-cyber i {
+      color: #ff0040;
+      margin-right: 6px;
+    }
+
+    /* FORM */
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      margin-bottom: 2rem;
+    }
+
+    .input-group label {
+      color: #b0d4ff;
+      font-size: 0.9rem;
+      letter-spacing: 2px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .input-group label i {
+      color: #ff0040;
+      font-size: 1.2rem;
+    }
+
+    .url-input {
+      background: #0a0e1fcc;
+      border: 2px solid #1f3a6b;
+      border-radius: 40px;
+      padding: 1rem 1.8rem;
+      font-size: 1rem;
+      color: #e0f0ff;
+      outline: none;
+      transition: 0.3s;
+      box-shadow: inset 0 0 15px #00e5ff22;
+      backdrop-filter: blur(4px);
+      width: 100%;
+    }
+
+    .url-input:focus {
+      border-color: #00e5ff;
+      box-shadow: 0 0 20px #00e5ff66, inset 0 0 20px #00e5ff33;
+    }
+
+    .url-input::placeholder {
+      color: #4a6a9a;
+      font-style: italic;
+    }
+
+    /* TOMBOL */
+    .btn-cyber {
+      background: transparent;
+      border: 2px solid #ff0040;
+      color: #ff0040;
+      padding: 0.9rem 2.2rem;
+      border-radius: 60px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.25s;
+      box-shadow: 0 0 12px #ff004066;
+      backdrop-filter: blur(4px);
+      background: rgba(255, 0, 64, 0.08);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      margin-top: 0.6rem;
+    }
+
+    .btn-cyber:hover {
+      background: #ff0040;
+      color: #0b0d1a;
+      box-shadow: 0 0 40px #ff0040, 0 0 80px #ff004066;
+      transform: scale(1.02);
+      border-color: #ff6b8a;
+    }
+
+    .btn-cyber i {
+      font-size: 1.2rem;
+    }
+
+    /* GRID PLATFORM */
+    .platform-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 1rem;
+      margin: 2rem 0 1.5rem;
+    }
+
+    .platform-item {
+      background: #0d1230bb;
+      backdrop-filter: blur(4px);
+      border: 1px solid #1f3a7a;
+      border-radius: 60px;
+      padding: 0.7rem 0.5rem;
+      text-align: center;
+      color: #b8d6ff;
+      font-weight: 600;
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+      box-shadow: 0 0 12px #00e5ff33;
+      transition: 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      cursor: default;
+    }
+
+    .platform-item i {
+      font-size: 1.5rem;
+      color: #ff0040;
+      filter: drop-shadow(0 0 6px #ff0040aa);
+    }
+
+    .platform-item.active {
+      border-color: #ff0040;
+      background: #1a0c1ecc;
+      box-shadow: 0 0 24px #ff004066;
+    }
+
+    /* AREA HASIL DOWNLOAD */
+    .download-area {
+      margin: 2rem 0 0.8rem;
+      background: #04081acc;
+      border: 1px solid #00e5ff44;
+      border-radius: 2rem 0.8rem 2rem 0.8rem;
+      padding: 1.5rem 1.2rem;
+      backdrop-filter: blur(6px);
+      box-shadow: inset 0 0 30px #00e5ff11;
+      transition: 0.3s;
+    }
+
+    .download-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px dashed #ff004066;
+      padding-bottom: 0.6rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .download-header span {
+      color: #9fc9ff;
+      letter-spacing: 2px;
+      font-size: 0.9rem;
+    }
+
+    .download-header i {
+      color: #ff0040;
+      margin-right: 8px;
+    }
+
+    .link-preview {
+      background: #0b1025;
+      padding: 0.8rem 1.2rem;
+      border-radius: 40px;
+      color: #b0d0ff;
+      font-size: 0.9rem;
+      word-break: break-all;
+      border-left: 4px solid #ff0040;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .link-preview i {
+      color: #00e5ff;
+      font-size: 1.2rem;
+    }
+
+    .download-btn-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn-download {
+      background: transparent;
+      border: 2px solid #00e5ff;
+      color: #00e5ff;
+      padding: 0.7rem 1.8rem;
+      border-radius: 60px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 2px;
+      transition: 0.2s;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      backdrop-filter: blur(4px);
+      background: rgba(0, 229, 255, 0.06);
+      flex: 1 1 auto;
+      justify-content: center;
+    }
+
+    .btn-download:hover {
+      background: #00e5ff;
+      color: #0b0d1a;
+      box-shadow: 0 0 30px #00e5ff, 0 0 60px #00e5ff66;
+      border-color: #a0f0ff;
+    }
+
+    .btn-download i {
+      font-size: 1.1rem;
+    }
+
+    .btn-download.primary-red {
+      border-color: #ff0040;
+      color: #ff0040;
+      background: rgba(255, 0, 64, 0.08);
+    }
+
+    .btn-download.primary-red:hover {
+      background: #ff0040;
+      color: #0b0d1a;
+      box-shadow: 0 0 30px #ff0040, 0 0 60px #ff004066;
+    }
+
+    /* footer */
+    .cyber-footer {
+      margin-top: 2rem;
+      text-align: center;
+      color: #3d5f8a;
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      border-top: 1px solid #1f3a6b66;
+      padding-top: 1.2rem;
+    }
+
+    .cyber-footer i {
+      color: #ff0040;
+      margin: 0 6px;
+    }
+
+    /* notifikasi sederhana */
+    .toast-msg {
+      background: #0a0f2aee;
+      backdrop-filter: blur(8px);
+      border: 1px solid #ff0040;
+      border-radius: 40px;
+      padding: 0.5rem 1.8rem;
+      color: #ffb3c6;
+      font-size: 0.9rem;
+      text-align: center;
+      display: inline-block;
+      margin-top: 0.6rem;
+    }
+
+    /* responsif */
+    @media (max-width: 550px) {
+      .cyber-card { padding: 1.8rem 1rem; }
+      .glitch-title { font-size: 2rem; }
+      .platform-grid { grid-template-columns: repeat(2, 1fr); }
+      .btn-cyber { font-size: 0.8rem; padding: 0.7rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="cyber-card">
+
+    <!-- JUDUL CYBERPUNK -->
+    <div class="glitch-title">
+      ⚡ DOWNLOAD<span style="color:#ff0040;">⚡</span>
+      <small>SPOTIFY · TIKTOK · YT · IG</small>
+    </div>
+    <div class="sub-cyber">
+      <span><i class="fas fa-skull"></i> CYBERPUNK 2077</span>
+      <span><i class="fas fa-bolt"></i> DARK BLUE / RED</span>
+    </div>
+
+    <!-- FORM INPUT -->
+    <div class="input-group">
+      <label for="mediaUrl"><i class="fas fa-link"></i> Tautan Media</label>
+      <input type="url" id="mediaUrl" class="url-input" placeholder="https://open.spotify.com/track/... atau https://www.tiktok.com/..." value="https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT">
+    </div>
+
+    <button class="btn-cyber" id="processBtn"><i class="fas fa-robot"></i> Proses Tautan</button>
+
+    <!-- PLATFORM GRID (sebagai indikator) -->
+    <div class="platform-grid">
+      <div class="platform-item active"><i class="fab fa-spotify"></i> Spotify</div>
+      <div class="platform-item"><i class="fab fa-tiktok"></i> TikTok</div>
+      <div class="platform-item"><i class="fab fa-youtube"></i> YouTube</div>
+      <div class="platform-item"><i class="fab fa-instagram"></i> Instagram</div>
+    </div>
+
+    <!-- AREA DOWNLOAD (hasil) -->
+    <div class="download-area" id="downloadArea">
+      <div class="download-header">
+        <span><i class="fas fa-download"></i> LINK UNDUH</span>
+        <span style="color:#ff0040;"><i class="fas fa-circle"></i> AKTIF</span>
+      </div>
+
+      <!-- pratinjau link -->
+      <div class="link-preview" id="linkPreview">
+        <i class="fas fa-globe"></i>
+        <span id="previewText">spotify.com/track/4cOdK2wGLETKBW3PvgPWqT</span>
+      </div>
+
+      <!-- tombol download (contoh) -->
+      <div class="download-btn-group">
+        <button class="btn-download" id="downloadBtn1"><i class="fas fa-file-audio"></i> MP3 (320k)</button>
+        <button class="btn-download primary-red" id="downloadBtn2"><i class="fas fa-file-video"></i> MP4 (HD)</button>
+      </div>
+      <div style="text-align: center; margin-top: 10px;">
+        <span class="toast-msg" id="statusMsg"><i class="fas fa-shield-alt"></i> siap unduh</span>
+      </div>
+    </div>
+
+    <div class="cyber-footer">
+      <i class="fas fa-code"></i> CYBERPUNK DOWNLOADER · <i class="fas fa-dragon"></i> 2026
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      "use strict";
+
+      // elemen
+      const urlInput = document.getElementById('mediaUrl');
+      const processBtn = document.getElementById('processBtn');
+      const previewText = document.getElementById('previewText');
+      const statusMsg = document.getElementById('statusMsg');
+      const downloadBtn1 = document.getElementById('downloadBtn1');
+      const downloadBtn2 = document.getElementById('downloadBtn2');
+
+      // fungsi untuk memperbarui preview & status
+      function updateDownloadArea(url) {
+        if (!url || url.trim() === '') {
+          previewText.textContent = '🔗 masukkan tautan terlebih dahulu';
+          statusMsg.innerHTML = '<i class="fas fa-exclamation-triangle"></i> tautan kosong';
+          return;
+        }
+
+        // bersihkan url
+        let cleanUrl = url.trim();
+        // tampilkan di preview (potong jika panjang)
+        let displayUrl = cleanUrl.length > 50 ? cleanUrl.substring(0, 50) + '…' : cleanUrl;
+        previewText.textContent = displayUrl;
+
+        // deteksi platform (hanya untuk UI / feedback)
+        let platform = 'unknown';
+        let icon = '🔗';
+        if (cleanUrl.includes('spotify.com')) {
+          platform = 'Spotify';
+          icon = '🎵';
+        } else if (cleanUrl.includes('tiktok.com')) {
+          platform = 'TikTok';
+          icon = '🎶';
+        } else if (cleanUrl.includes('youtube.com') || cleanUrl.includes('youtu.be')) {
+          platform = 'YouTube';
+          icon = '📺';
+        } else if (cleanUrl.includes('instagram.com')) {
+          platform = 'Instagram';
+          icon = '📸';
+        } else {
+          platform = 'Platform';
+          icon = '🌐';
+        }
+
+        // update status message
+        statusMsg.innerHTML = `<i class="fas fa-check-circle" style="color:#00e5ff;"></i> ${icon} ${platform} · siap unduh (simulasi)`;
+
+        // ubah sedikit tombol download agar lebih interaktif (hanya UI)
+        downloadBtn1.innerHTML = `<i class="fas fa-file-audio"></i> MP3 (${platform})`;
+        downloadBtn2.innerHTML = `<i class="fas fa-file-video"></i> MP4 (${platform})`;
+      }
+
+      // event untuk tombol proses
+      function handleProcess() {
+        const rawUrl = urlInput.value;
+        if (!rawUrl || rawUrl.trim() === '') {
+          previewText.textContent = '⚠️ tautan tidak boleh kosong';
+          statusMsg.innerHTML = '<i class="fas fa-times-circle" style="color:#ff0040;"></i> Masukkan URL terlebih dahulu!';
+          return;
+        }
+        updateDownloadArea(rawUrl);
+      }
+
+      // tombol download (simulasi) — menampilkan notifikasi
+      function simulateDownload(mediaType) {
+        const url = urlInput.value.trim();
+        if (!url) {
+          statusMsg.innerHTML = '<i class="fas fa-ban" style="color:#ff0040;"></i> Tidak ada tautan untuk diunduh';
+          return;
+        }
+        // ambil platform dari preview
+        let platform = 'media';
+        if (url.includes('spotify')) platform = 'Spotify';
+        else if (url.includes('tiktok')) platform = 'TikTok';
+        else if (url.includes('youtube')) platform = 'YouTube';
+        else if (url.includes('instagram')) platform = 'Instagram';
+
+        statusMsg.innerHTML = `<i class="fas fa-spinner fa-pulse"></i> Mengunduh ${mediaType} dari ${platform} ... (demo)`;
+        // simulasi selesai
+        setTimeout(() => {
+          statusMsg.innerHTML = `<i class="fas fa-check-circle" style="color:#00e5ff;"></i> ${mediaType} · ${platform} siap (tautan download simulasi)`;
+        }, 1200);
+      }
+
+      // event listener
+      processBtn.addEventListener('click', handleProcess);
+
+      // enter key pada input
+      urlInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleProcess();
+        }
+      });
+
+      // tombol download 1 & 2
+      downloadBtn1.addEventListener('click', function(e) {
+        e.preventDefault();
+        const url = urlInput.value.trim();
+        if (!url) {
+          statusMsg.innerHTML = '<i class="fas fa-exclamation-circle" style="color:#ff0040;"></i> Masukkan tautan dulu!';
+          return;
+        }
+        simulateDownload('MP3 320k');
+      });
+
+      downloadBtn2.addEventListener('click', function(e) {
+        e.preventDefault();
+        const url = urlInput.value.trim();
+        if (!url) {
+          statusMsg.innerHTML = '<i class="fas fa-exclamation-circle" style="color:#ff0040;"></i> Masukkan tautan dulu!';
+          return;
+        }
+        simulateDownload('MP4 HD');
+      });
+
+      // inisialisasi awal dengan contoh link
+      window.addEventListener('load', function() {
+        // set contoh dari value
+        const initUrl = urlInput.value;
+        if (initUrl) {
+          updateDownloadArea(initUrl);
+        } else {
+          previewText.textContent = '🔗 contoh: spotify.com/track/...';
+          statusMsg.innerHTML = '<i class="fas fa-info-circle"></i> siapkan tautan';
+        }
+      });
+
+      // tambahan: klik pada platform item hanya efek visual (ga wajib)
+      document.querySelectorAll('.platform-item').forEach(item => {
+        item.addEventListener('click', function() {
+          document.querySelectorAll('.platform-item').forEach(el => el.classList.remove('active'));
+          this.classList.add('active');
+          // ambil nama platform
+          const name = this.innerText.trim();
+          statusMsg.innerHTML = `<i class="fas fa-sync-alt fa-spin"></i> beralih ke ${name} (demo)`;
+          setTimeout(() => {
+            statusMsg.innerHTML = `<i class="fas fa-check-circle" style="color:#00e5ff;"></i> ${name} siap`;
+          }, 500);
+        });
+      });
+
+    })();
+  </script>
+
+</body>
+</html>
