@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CYBERLINK // MEDIA HUB v3</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Share+Tech+Mono&display=swap');
+
+  :root {
+    --bg: #03030a;
+    --panel: #0a0a16;
+    --blue: #00f0ff;
+    --blue-dim: #0099bb;
+    --red: #ff003c;
+    --text: #d0f4ff;
+    --gray: #6a7a8a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      linear-gradient(rgba(0,240,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,240,255,0.03) 1px, transparent 1px);
+    background-size: 36px 36px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 2px,
+      rgba(0,0,0,0.18) 2px, rgba(0,0,0,0.18) 4px
+    );
+    pointer-events: none;
+    z-index: 1;
+    animation: scan 7s linear infinite;
+  }
+  @keyframes scan {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(36px); }
+  }
+
+  .container {
+    position: relative;
+    z-index: 2;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 18px 70px;
+  }
+
+  header { text-align: center; margin-bottom: 42px; }
+  .glitch {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(1.9rem, 5.5vw, 3.4rem);
+    font-weight: 900;
+    letter-spacing: 3px;
+    color: var(--blue);
+    text-shadow:
+      0 0 8px var(--blue),
+      0 0 18px var(--blue),
+      0 0 35px var(--blue),
+      2px 0 var(--red),
+      -2px 0 var(--red);
+    animation: glitch 3.2s infinite;
+  }
+  @keyframes glitch {
+    0%, 92%, 100% { transform: none; }
+    93% { transform: translate(-2px,1px); }
+    95% { transform: translate(2px,-1px); }
+    97% { transform: translate(-1px,2px); }
+  }
+  .subtitle {
+    margin-top: 8px;
+    color: var(--red);
+    font-size: 0.9rem;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+  }
+
+  .section-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.25rem;
+    color: var(--blue);
+    margin: 48px 0 22px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid var(--blue-dim);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-shadow: 0 0 7px var(--blue);
+  }
+  .section-title::before { content: '//'; color: var(--red); }
+
+  /* Photo */
+  .photo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+  }
+  .photo-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--blue-dim);
+    background: var(--panel);
+    transition: 0.3s;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .photo-card:hover {
+    border-color: var(--blue);
+    box-shadow: 0 0 18px rgba(0,240,255,0.35);
+    transform: translateY(-4px);
+  }
+  .photo-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    display: block;
+    transition: 0.4s;
+  }
+  .photo-card:hover img { transform: scale(1.07); }
+  .photo-overlay {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 10px;
+    background: linear-gradient(transparent, rgba(0,0,0,0.92));
+    font-size: 0.78rem;
+    color: var(--blue);
+  }
+
+  /* Video embed */
+  .video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  .video-card {
+    background: var(--panel);
+    border: 1px solid var(--blue-dim);
+    overflow: hidden;
+    transition: 0.3s;
+  }
+  .video-card:hover {
+    border-color: var(--red);
+    box-shadow: 0 0 22px rgba(255,0,60,0.3);
+  }
+  .video-card iframe {
+    width: 100%;
+    height: 190px;
+    border: none;
+    display: block;
+  }
+  .video-info {
+    padding: 13px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* Downloader cards */
+  .dl-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  .dl-card {
+    background: var(--panel);
+    border: 1px solid var(--blue-dim);
+    padding: 20px 18px;
+    position: relative;
+    overflow: hidden;
+    transition: 0.3s;
+  }
+  .dl-card:hover {
+    border-color: var(--blue);
+    box-shadow: 0 0 18px rgba(0,240,255,0.25);
+  }
+  .dl-icon { font-size: 2.2rem; display: block; margin-bottom: 6px; }
+  .dl-card h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.05rem;
+    color: var(--blue);
+    margin-bottom: 4px;
+  }
+  .dl-card p {
+    font-size: 0.74rem;
+    color: var(--gray);
+    margin-bottom: 12px;
+  }
+  .dl-input {
+    width: 100%;
+    background: #060612;
+    border: 1px solid var(--blue-dim);
+    color: var(--text);
+    padding: 9px 11px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+    margin-bottom: 12px;
+    outline: none;
+  }
+  .dl-input:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 8px rgba(0,240,255,0.3);
+  }
+  .btn-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .btn {
+    flex: 1;
+    min-width: 100px;
+    padding: 9px 12px;
+    background: transparent;
+    border: 1px solid var(--blue);
+    color: var(--blue);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: 0.25s;
+    text-align: center;
+    text-decoration: none;
+  }
+  .btn:hover {
+    background: var(--blue);
+    color: #000;
+    box-shadow: 0 0 12px var(--blue);
+  }
+  .btn-red {
+    border-color: var(--red);
+    color: var(--red);
+  }
+  .btn-red:hover {
+    background: var(--red);
+    color: #fff;
+    box-shadow: 0 0 12px var(--red);
+  }
+
+  /* Progress */
+  .progress-wrap {
+    display: none;
+    margin-bottom: 12px;
+  }
+  .progress-bar {
+    height: 6px;
+    background: #111;
+    border: 1px solid var(--blue-dim);
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--blue), var(--red));
+    transition: width 0.12s linear;
+    box-shadow: 0 0 8px var(--blue);
+  }
+  .progress-text {
+    font-size: 0.72rem;
+    color: var(--blue);
+    margin-top: 4px;
+  }
+
+  /* Player area (muncul setelah download) */
+  .player-area {
+    display: none;
+    margin-top: 10px;
+    border: 1px solid var(--blue-dim);
+    background: #060612;
+    padding: 10px;
+  }
+  .player-area.active { display: block; }
+  .player-area video,
+  .player-area audio {
+    width: 100%;
+    max-height: 180px;
+    display: block;
+    margin-bottom: 8px;
+  }
+  .player-area audio { height: 40px; }
+  .dl-real {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 0.78rem;
+    color: var(--blue);
+    text-decoration: none;
+    border: 1px solid var(--blue);
+    padding: 6px 12px;
+  }
+  .dl-real:hover {
+    background: var(--blue);
+    color: #000;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #0a0a18;
+    border: 1px solid var(--blue);
+    color: var(--blue);
+    padding: 12px 22px;
+    font-size: 0.85rem;
+    z-index: 100;
+    opacity: 0;
+    transition: 0.35s;
+    box-shadow: 0 0 20px rgba(0,240,255,0.3);
+    pointer-events: none;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .toast.error { border-color: var(--red); color: var(--red); }
+
+  footer {
+    margin-top: 70px;
+    text-align: center;
+    font-size: 0.75rem;
+    color: #556677;
+    letter-spacing: 1.5px;
+  }
+  footer span { color: var(--red); }
+
+  @media (max-width: 600px) {
+    .photo-grid { grid-template-columns: repeat(2, 1fr); }
+    .video-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1 class="glitch">CYBERLINK</h1>
+      <p class="subtitle">Photo · Video · Salin Link · Download & Play</p>
+    </header>
+
+    <!-- FOTO → LINK -->
+    <h2 class="section-title">FOTO → LINK</h2>
+    <div class="photo-grid">
+      <a href="https://www.instagram.com/" target="_blank" class="photo-card">
+        <img src="https://picsum.photos/id/1015/400/300" alt="IG">
+        <div class="photo-overlay">INSTAGRAM // KLIK</div>
+      </a>
+      <a href="https://www.tiktok.com/" target="_blank" class="photo-card">
+        <img src="https://picsum.photos/id/1025/400/300" alt="TT">
+        <div class="photo-overlay">TIKTOK // KLIK</div>
+      </a>
+      <a href="https://www.youtube.com/" target="_blank" class="photo-card">
+        <img src="https://picsum.photos/id/1035/400/300" alt="YT">
+        <div class="photo-overlay">YOUTUBE // KLIK</div>
+      </a>
+      <a href="https://open.spotify.com/" target="_blank" class="photo-card">
+        <img src="https://picsum.photos/id/1045/400/300" alt="SP">
+        <div class="photo-overlay">SPOTIFY // KLIK</div>
+      </a>
+    </div>
+
+    <!-- VIDEO → LINK (YouTube embed - sudah bisa diputar) -->
+    <h2 class="section-title">VIDEO → LINK</h2>
+    <div class="video-grid">
+      <div class="video-card">
+        <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+        <div class="video-info">
+          <span>Sample Cyber Video 01</span>
+          <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" class="btn btn-red">BUKA YT</a>
+        </div>
+      </div>
+      <div class="video-card">
+        <iframe src="https://www.youtube.com/embed/9bZkp7q19f0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+        <div class="video-info">
+          <span>Sample Cyber Video 02</span>
+          <a href="https://www.youtube.com/watch?v=9bZkp7q19f0" target="_blank" class="btn btn-red">BUKA YT</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- SALIN + DOWNLOAD + PLAY -->
+    <h2 class="section-title">SALIN LINK & DOWNLOAD (Bisa Diputar)</h2>
+    <div class="dl-grid">
+
+      <!-- Spotify (Audio) -->
+      <div class="dl-card" data-type="audio">
+        <span class="dl-icon">🎵</span>
+        <h3>SPOTIFY</h3>
+        <p>Tempel link → Salin atau Download Audio (sample playable)</p>
+        <input type="text" class="dl-input" placeholder="https://open.spotify.com/track/..." value="https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT">
+        <div class="btn-row">
+          <button class="btn" onclick="copyLink(this)">SALIN LINK</button>
+          <button class="btn btn-red" onclick="startDownload(this)">DOWNLOAD AUDIO</button>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-bar"><div class="progress-fill"></div></div>
+          <div class="progress-text">0%</div>
+        </div>
+        <div class="player-area">
+          <audio controls preload="metadata">
+            <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+          </audio>
+          <a class="dl-real" href="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" download="cyber-spotify-sample.mp3">⬇ UNDUH FILE AUDIO</a>
+        </div>
+      </div>
+
+      <!-- TikTok (Video) -->
+      <div class="dl-card" data-type="video">
+        <span class="dl-icon">📱</span>
+        <h3>TIKTOK</h3>
+        <p>Tempel link → Salin atau Download Video (sample playable)</p>
+        <input type="text" class="dl-input" placeholder="https://www.tiktok.com/@user/video/..." value="https://www.tiktok.com/@tiktok/video/7234567890123456789">
+        <div class="btn-row">
+          <button class="btn" onclick="copyLink(this)">SALIN LINK</button>
+          <button class="btn btn-red" onclick="startDownload(this)">DOWNLOAD VIDEO</button>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-bar"><div class="progress-fill"></div></div>
+          <div class="progress-text">0%</div>
+        </div>
+        <div class="player-area">
+          <video controls preload="metadata" playsinline>
+            <source src="https://cdn.truefilesize.com/mp4/sample-1mb.mp4" type="video/mp4">
+          </video>
+          <a class="dl-real" href="https://cdn.truefilesize.com/mp4/sample-1mb.mp4" download="cyber-tiktok-sample.mp4">⬇ UNDUH FILE VIDEO</a>
+        </div>
+      </div>
+
+      <!-- YouTube (Video) -->
+      <div class="dl-card" data-type="video">
+        <span class="dl-icon">▶️</span>
+        <h3>YOUTUBE</h3>
+        <p>Tempel link → Salin atau Download Video (sample playable)</p>
+        <input type="text" class="dl-input" placeholder="https://www.youtube.com/watch?v=..." value="https://www.youtube.com/watch?v=dQw4w9WgXcQ">
+        <div class="btn-row">
+          <button class="btn" onclick="copyLink(this)">SALIN LINK</button>
+          <button class="btn btn-red" onclick="startDownload(this)">DOWNLOAD VIDEO</button>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-bar"><div class="progress-fill"></div></div>
+          <div class="progress-text">0%</div>
+        </div>
+        <div class="player-area">
+          <video controls preload="metadata" playsinline>
+            <source src="https://cdn.truefilesize.com/mp4/sample-5mb.mp4" type="video/mp4">
+          </video>
+          <a class="dl-real" href="https://cdn.truefilesize.com/mp4/sample-5mb.mp4" download="cyber-youtube-sample.mp4">⬇ UNDUH FILE VIDEO</a>
+        </div>
+      </div>
+
+      <!-- Instagram (Video) -->
+      <div class="dl-card" data-type="video">
+        <span class="dl-icon">📸</span>
+        <h3>INSTAGRAM</h3>
+        <p>Tempel link → Salin atau Download Video (sample playable)</p>
+        <input type="text" class="dl-input" placeholder="https://www.instagram.com/p/..." value="https://www.instagram.com/p/CxYz123456/">
+        <div class="btn-row">
+          <button class="btn" onclick="copyLink(this)">SALIN LINK</button>
+          <button class="btn btn-red" onclick="startDownload(this)">DOWNLOAD VIDEO</button>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-bar"><div class="progress-fill"></div></div>
+          <div class="progress-text">0%</div>
+        </div>
+        <div class="player-area">
+          <video controls preload="metadata" playsinline>
+            <source src="https://cdn.truefilesize.com/mp4/sample-1mb.mp4" type="video/mp4">
+          </video>
+          <a class="dl-real" href="https://cdn.truefilesize.com/mp4/sample-1mb.mp4" download="cyber-instagram-sample.mp4">⬇ UNDUH FILE VIDEO</a>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>CYBERLINK v3.0 // <span>DARK BLUE × RED</span> // SINGLE FILE HTML</p>
+      <p style="margin-top:6px;font-size:0.7rem;opacity:0.75">
+        Video & audio di atas adalah file sample resmi yang bisa diputar & diunduh.<br>
+        Platform asli (Spotify/TikTok/YT/IG) memblokir unduhan langsung karena hak cipta.
+      </p>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    function showToast(msg, isError = false) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast' + (isError ? ' error' : '');
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    function copyLink(btn) {
+      const card = btn.closest('.dl-card');
+      const input = card.querySelector('.dl-input');
+      const text = input.value.trim();
+      if (!text) {
+        showToast('Link kosong!', true);
+        return;
+      }
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('✓ Link berhasil disalin!');
+      }).catch(() => {
+        input.select();
+        document.execCommand('copy');
+        showToast('✓ Link berhasil disalin!');
+      });
+    }
+
+    function startDownload(btn) {
+      const card = btn.closest('.dl-card');
+      const input = card.querySelector('.dl-input');
+      if (!input.value.trim()) {
+        showToast('Masukkan link dulu!', true);
+        return;
+      }
+
+      const wrap = card.querySelector('.progress-wrap');
+      const fill = card.querySelector('.progress-fill');
+      const text = card.querySelector('.progress-text');
+      const player = card.querySelector('.player-area');
+
+      // Reset
+      player.classList.remove('active');
+      wrap.style.display = 'block';
+      fill.style.width = '0%';
+      text.textContent = '0% • Memulai unduhan...';
+
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += Math.random() * 14 + 5;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          fill.style.width = '100%';
+          text.textContent = '100% • Selesai!';
+          showToast('✓ Download selesai — sekarang bisa diputar!');
+
+          // Tampilkan player yang bisa diputar
+          setTimeout(() => {
+            wrap.style.display = 'none';
+            player.classList.add('active');
+            // Auto play sedikit biar user langsung lihat bisa diputar
+            const media = player.querySelector('video, audio');
+            if (media) {
+              media.currentTime = 0;
+              // Jangan autoplay paksa (browser sering blokir), biarkan user klik play
+            }
+          }, 600);
+        } else {
+          fill.style.width = progress + '%';
+          text.textContent = Math.floor(progress) + '% • Mengunduh...';
+        }
+      }, 160);
+    }
+  </script>
+</body>
+</html>
