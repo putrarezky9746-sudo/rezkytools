@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CYBERLINK // MEDIA DOWNLOADER</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Share+Tech+Mono&display=swap');
+
+  :root {
+    --bg: #03030a;
+    --panel: #0a0a16;
+    --blue: #00f0ff;
+    --blue-dim: #0099bb;
+    --red: #ff003c;
+    --red-dim: #aa0028;
+    --text: #d0f4ff;
+    --gray: #6a7a8a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Cyber grid + scanline */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      linear-gradient(rgba(0,240,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,240,255,0.03) 1px, transparent 1px);
+    background-size: 36px 36px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 2px,
+      rgba(0,0,0,0.18) 2px, rgba(0,0,0,0.18) 4px
+    );
+    pointer-events: none;
+    z-index: 1;
+    animation: scan 7s linear infinite;
+  }
+  @keyframes scan {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(36px); }
+  }
+
+  .container {
+    position: relative;
+    z-index: 2;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 18px 70px;
+  }
+
+  /* Header */
+  header { text-align: center; margin-bottom: 42px; }
+  .glitch {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(1.9rem, 5.5vw, 3.4rem);
+    font-weight: 900;
+    letter-spacing: 3px;
+    color: var(--blue);
+    text-shadow:
+      0 0 8px var(--blue),
+      0 0 18px var(--blue),
+      0 0 35px var(--blue),
+      2px 0 var(--red),
+      -2px 0 var(--red);
+    animation: glitch 3.2s infinite;
+  }
+  @keyframes glitch {
+    0%, 92%, 100% { transform: none; }
+    93% { transform: translate(-2px,1px); }
+    95% { transform: translate(2px,-1px); }
+    97% { transform: translate(-1px,2px); }
+  }
+  .subtitle {
+    margin-top: 8px;
+    color: var(--red);
+    font-size: 0.9rem;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+  }
+
+  /* Section */
+  .section-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.25rem;
+    color: var(--blue);
+    margin: 48px 0 22px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid var(--blue-dim);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-shadow: 0 0 7px var(--blue);
+  }
+  .section-title::before { content: '//'; color: var(--red); }
+
+  /* Photo Grid */
+  .photo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+  }
+  .photo-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--blue-dim);
+    background: var(--panel);
+    transition: 0.3s;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .photo-card:hover {
+    border-color: var(--blue);
+    box-shadow: 0 0 18px rgba(0,240,255,0.35), 0 0 30px rgba(255,0,60,0.15);
+    transform: translateY(-4px);
+  }
+  .photo-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    display: block;
+    transition: 0.4s;
+    filter: contrast(1.1) saturate(1.15);
+  }
+  .photo-card:hover img {
+    transform: scale(1.07);
+    filter: contrast(1.2) saturate(1.3) brightness(1.05);
+  }
+  .photo-overlay {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 10px;
+    background: linear-gradient(transparent, rgba(0,0,0,0.92));
+    font-size: 0.78rem;
+    color: var(--blue);
+  }
+
+  /* Video Grid */
+  .video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  .video-card {
+    background: var(--panel);
+    border: 1px solid var(--blue-dim);
+    overflow: hidden;
+    transition: 0.3s;
+  }
+  .video-card:hover {
+    border-color: var(--red);
+    box-shadow: 0 0 22px rgba(255,0,60,0.3);
+  }
+  .video-card iframe {
+    width: 100%;
+    height: 190px;
+    border: none;
+    display: block;
+  }
+  .video-info {
+    padding: 13px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+  .video-info span { font-size: 0.85rem; }
+
+  /* Downloader Section */
+  .dl-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 18px;
+  }
+  .dl-card {
+    background: var(--panel);
+    border: 1px solid var(--blue-dim);
+    padding: 22px 18px;
+    position: relative;
+    overflow: hidden;
+    transition: 0.3s;
+  }
+  .dl-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--blue), transparent);
+    transition: 0.5s;
+  }
+  .dl-card:hover::before { left: 100%; }
+  .dl-card:hover {
+    border-color: var(--blue);
+    box-shadow: 0 0 18px rgba(0,240,255,0.25);
+  }
+  .dl-icon { font-size: 2.4rem; display: block; margin-bottom: 8px; }
+  .dl-card h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.05rem;
+    color: var(--blue);
+    margin-bottom: 6px;
+  }
+  .dl-card p {
+    font-size: 0.75rem;
+    color: var(--gray);
+    margin-bottom: 14px;
+  }
+  .dl-input {
+    width: 100%;
+    background: #060612;
+    border: 1px solid var(--blue-dim);
+    color: var(--text);
+    padding: 9px 11px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+    margin-bottom: 12px;
+    outline: none;
+    transition: 0.25s;
+  }
+  .dl-input:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 8px rgba(0,240,255,0.3);
+  }
+  .btn-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    flex: 1;
+    min-width: 90px;
+    padding: 9px 12px;
+    background: transparent;
+    border: 1px solid var(--blue);
+    color: var(--blue);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: 0.25s;
+    text-align: center;
+    text-decoration: none;
+  }
+  .btn:hover {
+    background: var(--blue);
+    color: #000;
+    box-shadow: 0 0 12px var(--blue);
+  }
+  .btn-red {
+    border-color: var(--red);
+    color: var(--red);
+  }
+  .btn-red:hover {
+    background: var(--red);
+    color: #fff;
+    box-shadow: 0 0 12px var(--red);
+  }
+
+  /* Progress bar */
+  .progress-wrap {
+    margin-top: 12px;
+    display: none;
+  }
+  .progress-bar {
+    height: 6px;
+    background: #111;
+    border: 1px solid var(--blue-dim);
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--blue), var(--red));
+    transition: width 0.15s linear;
+    box-shadow: 0 0 8px var(--blue);
+  }
+  .progress-text {
+    font-size: 0.72rem;
+    color: var(--blue);
+    margin-top: 5px;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #0a0a18;
+    border: 1px solid var(--blue);
+    color: var(--blue);
+    padding: 12px 22px;
+    font-size: 0.85rem;
+    z-index: 100;
+    opacity: 0;
+    transition: 0.35s;
+    box-shadow: 0 0 20px rgba(0,240,255,0.3);
+    pointer-events: none;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .toast.error { border-color: var(--red); color: var(--red); }
+
+  footer {
+    margin-top: 70px;
+    text-align: center;
+    font-size: 0.75rem;
+    color: #556677;
+    letter-spacing: 1.5px;
+  }
+  footer span { color: var(--red); }
+
+  @media (max-width: 600px) {
+    .photo-grid { grid-template-columns: repeat(2, 1fr); }
+    .video-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1 class="glitch">CYBERLINK</h1>
+      <p class="subtitle">Photo · Video · Salin Link · Download</p>
+    </header>
+
+    <!-- FOTO → LINK -->
+    <h2 class="section-title">FOTO → LINK</h2>
+    <div class="photo-grid">
+      <a href="https://www.instagram.com/" target="_blank" class="photo-card">
+        <img src="https://picsum.photos/id/1015/400/300" alt="IG">
+        <div class="photo-overlay">INSTAGRAM // KLIK</div>
+      </a>
+      <a href="https://www.tiktok.com/" target="_blank" class="photo-card">
+        <img src="https://picsum.photos/id/1025/400/300" alt="TT">
+        <div class="photo-overlay">TIKTOK // KLIK</div>
+      </a>
+      <a href="https://www.youtube.com/" target="_blank" class="photo-card">
+        <img src="https://picsum.photos/id/1035/400/300" alt="YT">
+        <div class="photo-overlay">YOUTUBE // KLIK</div>
+      </a>
+      <a href="https://open.spotify.com/" target="_blank" class="photo-card">
+        <img src="https://picsum.photos/id/1045/400/300" alt="SP">
+        <div class="photo-overlay">SPOTIFY // KLIK</div>
+      </a>
+    </div>
+
+    <!-- VIDEO → LINK -->
+    <h2 class="section-title">VIDEO → LINK</h2>
+    <div class="video-grid">
+      <div class="video-card">
+        <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>
+        <div class="video-info">
+          <span>Sample Cyber Video 01</span>
+          <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" class="btn btn-red">BUKA YT</a>
+        </div>
+      </div>
+      <div class="video-card">
+        <iframe src="https://www.youtube.com/embed/9bZkp7q19f0" allowfullscreen></iframe>
+        <div class="video-info">
+          <span>Sample Cyber Video 02</span>
+          <a href="https://www.youtube.com/watch?v=9bZkp7q19f0" target="_blank" class="btn btn-red">BUKA YT</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- SALIN + DOWNLOAD -->
+    <h2 class="section-title">SALIN LINK & DOWNLOAD</h2>
+    <div class="dl-grid">
+
+      <!-- Spotify -->
+      <div class="dl-card" data-platform="spotify">
+        <span class="dl-icon">🎵</span>
+        <h3>SPOTIFY</h3>
+        <p>Tempel link track / playlist → Salin atau Download Audio</p>
+        <input type="text" class="dl-input" placeholder="https://open.spotify.com/track/..." value="https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT">
+        <div class="btn-row">
+          <button class="btn" onclick="copyLink(this)">SALIN LINK</button>
+          <button class="btn btn-red" onclick="startDownload(this, 'audio')">DOWNLOAD AUDIO</button>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-bar"><div class="progress-fill"></div></div>
+          <div class="progress-text">0%</div>
+        </div>
+      </div>
+
+      <!-- TikTok -->
+      <div class="dl-card" data-platform="tiktok">
+        <span class="dl-icon">📱</span>
+        <h3>TIKTOK</h3>
+        <p>Tempel link video TikTok → Salin atau Download Video</p>
+        <input type="text" class="dl-input" placeholder="https://www.tiktok.com/@user/video/..." value="https://www.tiktok.com/@tiktok/video/7234567890123456789">
+        <div class="btn-row">
+          <button class="btn" onclick="copyLink(this)">SALIN LINK</button>
+          <button class="btn btn-red" onclick="startDownload(this, 'video')">DOWNLOAD VIDEO</button>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-bar"><div class="progress-fill"></div></div>
+          <div class="progress-text">0%</div>
+        </div>
+      </div>
+
+      <!-- YouTube -->
+      <div class="dl-card" data-platform="youtube">
+        <span class="dl-icon">▶️</span>
+        <h3>YOUTUBE</h3>
+        <p>Tempel link video YouTube → Salin atau Download Video</p>
+        <input type="text" class="dl-input" placeholder="https://www.youtube.com/watch?v=..." value="https://www.youtube.com/watch?v=dQw4w9WgXcQ">
+        <div class="btn-row">
+          <button class="btn" onclick="copyLink(this)">SALIN LINK</button>
+          <button class="btn btn-red" onclick="startDownload(this, 'video')">DOWNLOAD VIDEO</button>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-bar"><div class="progress-fill"></div></div>
+          <div class="progress-text">0%</div>
+        </div>
+      </div>
+
+      <!-- Instagram -->
+      <div class="dl-card" data-platform="instagram">
+        <span class="dl-icon">📸</span>
+        <h3>INSTAGRAM</h3>
+        <p>Tempel link post / reel → Salin atau Download Video</p>
+        <input type="text" class="dl-input" placeholder="https://www.instagram.com/p/..." value="https://www.instagram.com/p/CxYz123456/">
+        <div class="btn-row">
+          <button class="btn" onclick="copyLink(this)">SALIN LINK</button>
+          <button class="btn btn-red" onclick="startDownload(this, 'video')">DOWNLOAD VIDEO</button>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-bar"><div class="progress-fill"></div></div>
+          <div class="progress-text">0%</div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>CYBERLINK v2.0 // <span>DARK BLUE × RED</span> // SINGLE FILE HTML</p>
+      <p style="margin-top:6px;font-size:0.7rem;opacity:0.7">Download bersifat demo (file sample). Platform asli memblokir unduhan langsung.</p>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // Toast notification
+    function showToast(msg, isError = false) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast' + (isError ? ' error' : '');
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    // Salin Link
+    function copyLink(btn) {
+      const card = btn.closest('.dl-card');
+      const input = card.querySelector('.dl-input');
+      const text = input.value.trim();
+      if (!text) {
+        showToast('Link kosong!', true);
+        return;
+      }
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('✓ Link berhasil disalin!');
+      }).catch(() => {
+        // fallback
+        input.select();
+        document.execCommand('copy');
+        showToast('✓ Link berhasil disalin!');
+      });
+    }
+
+    // Simulasi Download + unduh file sample
+    function startDownload(btn, type) {
+      const card = btn.closest('.dl-card');
+      const input = card.querySelector('.dl-input');
+      const link = input.value.trim();
+      if (!link) {
+        showToast('Masukkan link dulu!', true);
+        return;
+      }
+
+      const wrap = card.querySelector('.progress-wrap');
+      const fill = card.querySelector('.progress-fill');
+      const text = card.querySelector('.progress-text');
+      wrap.style.display = 'block';
+      fill.style.width = '0%';
+      text.textContent = '0% • Memulai...';
+
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += Math.random() * 12 + 4;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          text.textContent = '100% • Selesai!';
+          showToast('✓ Download selesai (file sample)');
+
+          // Unduh file sample sesuai tipe
+          if (type === 'audio') {
+            // Sample audio pendek (public domain)
+            downloadSample('cyber-audio-sample.mp3', 'audio');
+          } else {
+            // Sample video pendek
+            downloadSample('cyber-video-sample.mp4', 'video');
+          }
+
+          setTimeout(() => {
+            wrap.style.display = 'none';
+          }, 1800);
+        } else {
+          fill.style.width = progress + '%';
+          text.textContent = Math.floor(progress) + '% • Mengunduh...';
+        }
+      }, 180);
+    }
+
+    // Buat file sample sederhana (blob) agar benar-benar bisa di-download
+    function downloadSample(filename, type) {
+      let content, mime;
+      if (type === 'audio') {
+        // Minimal valid MP3 header + silence-ish (sangat kecil)
+        // Kita pakai data URL sederhana agar tidak bergantung file eksternal
+        const audioData = atob('SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAADhAC7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7//////////////////////////////////////////////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAAAAAAAAAAAA4T/8xEAAAAA');
+        content = new Uint8Array(audioData.length);
+        for (let i = 0; i < audioData.length; i++) content[i] = audioData.charCodeAt(i);
+        mime = 'audio/mpeg';
+      } else {
+        // Minimal valid MP4 (sangat kecil, hanya header)
+        const videoData = atob('AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAAu1tZGF0AAACrgYF//+q3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE1MiByMjg1NCBlOWE1OTAzIC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAxNyAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub3JnL3gyNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTEgcmVmPTMgZGVibG9jaz0xOjA6MCBhbmFseXNlPTB4MzoweDExMyBtZT1oZXggc3VibWU9NyBwc3k9MSBwc3lfcmQ9MS4wMDowLjAwIG1peGVkX3JlZj0xIG1lX3JhbmdlPTE2IGNocm9tYV9tZT0xIHRyZWxsaXM9MSA4eDhkY3Q9MSBjcW09MCBkZWFkem9uZT0yMSwxMSBmYXN0X3Bza2lwPTEgY2hyb21hX3FwX29mZnNldD0tMiB0aHJlYWRzPTYgbG9va2FoZWFkX3RocmVhZHM9MSBzbGljZWRfdGhyZWFkcz0wIG5yPTAgZGVjaW1hdGU9MSBpbnRlcmxhY2VkPTAgYmx1cmF5X2NvbXBhdD0wIGNvbnN0cmFpbmVkX2ludHJhPTAgYmZyYW1lcz0zIGJfcHlyYW1pZD0yIGJfYWRhcHQ9MSBiX2JpYXM9MCBkaXJlY3Q9MSB3ZWlnaHRiPTEgb3Blbl9nb3A9MCB3ZWlnaHRwPTIga2V5aW50PTI1MCBrZXlpbnRfbWluPTI1IHNjZW5lY3V0PTQwIGludHJhX3JlZnJlc2g9MCByY19sb29rYWhlYWQ9NDAgcmM9Y3JmIG1idHJlZT0xIGNyZj0yMy4wIHFjb21wPTAuNjAgcXBtaW49MCBxcG1heD02OSBxcHN0ZXA9NCBpcF9yYXRpbz0xLjQwIGFxPTE6MS4wMACAAAAAOWWIhAA3//728P4FNjuZQQAAAu5tb292AAAAbG12aGQAAAAAAAAAAAAAAAAAAAPoAAAAAAABAAABAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAACjHRyYWsAAABcdGtoZAAAAAMAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAEAAAAAAoAAAAFoAAAAAACRlZHRzAAAAHGVsc3QAAAAAAAAAAQAAAAAAAQAAAAEAAAAAAAFsbWRpYQAAACBtZGhkAAAAAAAAAAAAAAAAAAABQAAAAAABAFBtaW5mAAAAFHZtaGQAAAABAAAAAAAAAAAAAAAkZGluZgAAABxkcmVmAAAAAAAAAAEAAAAAAAABAAAAAQAAAHRtZGlhAAAAH21taGQAAAAAAAAAAAAAAAAAAEAAAAAAAQARYXZjMQAAAAAAaXVkZAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAABiaWRzAAAAAHRwcm9kAAAAHHZhc2gAAAAAZyiN4QAAAAFRZYiEAEAAAQAAAAEAAAAAAQAAAAAAAAAAAAAAAAAA');
+        content = new Uint8Array(videoData.length);
+        for (let i = 0; i < videoData.length; i++) content[i] = videoData.charCodeAt(i);
+        mime = 'video/mp4';
+      }
+
+      const blob = new Blob([content], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>
